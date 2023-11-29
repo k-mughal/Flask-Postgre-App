@@ -25,8 +25,6 @@ CREATE_CUSTOMER_TABLE = (
     "CREATE TABLE IF NOT EXISTS customer (id SERIAL PRIMARY KEY, username TEXT, email TEXT, password TEXT)"
 )
 
-cursor.execute(CREATE_CUSTOMER_TABLE)
-conn.commit()
 
 
 # Define the endpoint for creating a new customer
@@ -42,14 +40,37 @@ def create_customer():
         password = data.get('password')
 
         # Insert data into the customer table
-      
         cursor.execute("INSERT INTO customer (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
         conn.commit()
 
         return jsonify({'message': 'Customer created successfully'}), 201
-
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+# Define the endpoint for getting information for all customers
+@app.route('/api/customers', methods=['GET'])
+def get_all_customers():
+    try:
+        # Retrieve all customer information from the database
+        cursor.execute("SELECT * FROM customer")
+        customers = cursor.fetchall()
 
+        if customers:
+            # Convert the result to a list of dictionaries for JSON serialization
+            customers_info = []
+            for customer in customers:
+                customer_info = {
+                    'id': customer[0],
+                    'username': customer[1],
+                    'email': customer[2],
+                    'password': customer[3]
+                }
+                customers_info.append(customer_info)
 
+            return jsonify(customers_info), 200
+        else:
+            return jsonify({'message': 'No customers found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
