@@ -1,18 +1,14 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
-
+from flask import Flask, request, jsonify, render_template
 
 # Create the customer table if not exists
 CREATE_CUSTOMER_TABLE = (
     "CREATE TABLE IF NOT EXISTS customer (id SERIAL PRIMARY KEY, username TEXT, email TEXT, password TEXT);"
 )
 
-#INSERT_CUSTOMER = "INSERT INTO customer (username) VALUES (%s), (email) VALUES (%s), (password) VALUES (%s)"
 INSERT_CUSTOMER = "INSERT INTO customer (username, email, password) VALUES (%s, %s, %s)"
-
-
 
 load_dotenv()
 
@@ -24,8 +20,6 @@ cursor = conn.cursor()
 CREATE_CUSTOMER_TABLE = (
     "CREATE TABLE IF NOT EXISTS customer (id SERIAL PRIMARY KEY, username TEXT, email TEXT, password TEXT)"
 )
-
-
 
 # Define the endpoint for creating a new customer
 @app.route('/api/customer', methods=['POST'])
@@ -47,8 +41,8 @@ def create_customer():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
-# Define the endpoint for getting information for all customers
+ 
+ # Define the endpoint for getting information for all customers
 @app.route('/api/customers', methods=['GET'])
 def get_all_customers():
     try:
@@ -57,7 +51,7 @@ def get_all_customers():
         customers = cursor.fetchall()
 
         if customers:
-            # Convert the result to a list of dictionaries for JSON serialization
+            # Convert the result to a list of dictionaries for HTML rendering
             customers_info = []
             for customer in customers:
                 customer_info = {
@@ -68,9 +62,12 @@ def get_all_customers():
                 }
                 customers_info.append(customer_info)
 
-            return jsonify(customers_info), 200
+            # Render an HTML template with the customer information
+            return render_template('customer_list.html', customers=customers_info)
+
         else:
-            return jsonify({'message': 'No customers found'}), 404
+            return render_template('customer_list.html', message='No customers found')
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return render_template('error.html', error=str(e)), 500
+

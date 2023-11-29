@@ -4,28 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer List</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='customerlist.css') }}">
+
 </head>
 <body>
-    <h1>Customer List</h1>
-    {% if customers %}
-        <table border="1">
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Password</th>
-            </tr>
-            {% for customer in customers %}
+    <div class="container">
+        <h1>Users List</h1>
+        {% if customers %}
+            <table class="customer-table">
                 <tr>
-                    <td>{{ customer.id }}</td>
-                    <td>{{ customer.username }}</td>
-                    <td>{{ customer.email }}</td>
-                    <td>{{ customer.password }}</td>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Password</th>
                 </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>{{ message }}</p>
-    {% endif %}
+                {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.id }}</td>
+                        <td>{{ customer.username }}</td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.password }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p class="no-customers">{{ message }}</p>
+        {% endif %}
+    </div>
 </body>
 </html>
