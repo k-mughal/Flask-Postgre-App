@@ -1,14 +1,14 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, json
+
 
 # Create the customer table if not exists
 CREATE_CUSTOMER_TABLE = (
     "CREATE TABLE IF NOT EXISTS customer (id SERIAL PRIMARY KEY, username TEXT, email TEXT, password TEXT);"
 )
 
-INSERT_CUSTOMER = "INSERT INTO customer (username, email, password) VALUES (%s, %s, %s)"
 
 load_dotenv()
 
@@ -22,28 +22,38 @@ CREATE_CUSTOMER_TABLE = (
 )
 
 # Define the endpoint for creating a new customer
-@app.route('/api/customer', methods=['POST'])
+@app.route('/create-customer', methods=['POST'])
 def create_customer():
     try:
         # Get data from the request
         data = request.get_json()
-
+    
         # Extract values from the data
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
+        username = data.get('var_username')
+        email = data.get('var_email')
+        password = data.get('var_password')
 
         # Insert data into the customer table
         cursor.execute("INSERT INTO customer (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
+
         conn.commit()
 
         return jsonify({'message': 'Customer created successfully'}), 201
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
- 
- # Define the endpoint for getting information for all customers
-@app.route('/api/customers', methods=['GET'])
+        print(f"Error creating customer: {e}")
+        return jsonify({'error': 'Error creating customer'}), 500
+
+
+# Define the route for rendering the login page
+@app.route('/login', methods=['GET'])
+def render_login_page():
+    return render_template('login.html')
+
+
+
+ ######## Define the endpoint for getting information for all customers #########
+@app.route('/customers-list', methods=['GET'])
 def get_all_customers():
     try:
         # Retrieve all customer information from the database
@@ -70,4 +80,6 @@ def get_all_customers():
 
     except Exception as e:
         return render_template('error.html', error=str(e)), 500
+    
 
+    
